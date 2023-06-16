@@ -3,15 +3,13 @@
 
 using namespace std;
 
-int check_string(string &s, int begin, int size){
+int check_string(string &s, int &begin, int &size){
     string st;
     int sub_cnt = 0;
-    for(int i = begin; i < begin + size; i++){
+    for(int i = begin; i < begin + size; i++, sub_cnt += st.empty())
         if(s[i] == '(' || s[i] == '{' || s[i] == '[')   st.push_back(s[i]);
         else if(s[i] == (st.back() + 1) || s[i] == (st.back() + 2))     st.pop_back();
         else    return 0;
-        if(st.empty())  sub_cnt++;
-    }
     return (st.empty()) ? sub_cnt : 0;
 }
 
