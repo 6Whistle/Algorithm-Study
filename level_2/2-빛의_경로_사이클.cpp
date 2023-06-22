@@ -1,57 +1,30 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <tuple>
 #include <algorithm>
-// #include <iostream>
 
 using namespace std;
 
-bool operator==(const pair<int, int> &a, const pair<int, int> &b){  return a.first == b.first && a.second == b.second;  }
+vector<pair<int, int>> arrows({{-1, 0}, {0, 1}, {1, 0}, {0, -1}});
 
-void turn(pair<int, int> &cur_arrow, char state){
-    if(state == 'S')    return;     else    swap(cur_arrow.first, cur_arrow.second);
-    if((state == 'L' && cur_arrow.first) || (state == 'R' && cur_arrow.second)){    cur_arrow.first = -cur_arrow.first;     cur_arrow.second = -cur_arrow.second;   }
+void move_and_turn(vector<string> &grid, tuple<int, int, int> &cur_pnt){
+    get<0>(cur_pnt) = (get<0>(cur_pnt) + arrows[get<2>(cur_pnt)].first + grid.size()) % grid.size();
+    get<1>(cur_pnt) = (get<1>(cur_pnt) + arrows[get<2>(cur_pnt)].second + grid.begin()->size()) % grid.begin()->size();
+    get<2>(cur_pnt) = (get<2>(cur_pnt) + 4 + (grid[get<0>(cur_pnt)][get<1>(cur_pnt)] == 'L' ? -1 : grid[get<0>(cur_pnt)][get<1>(cur_pnt)] == 'R' ? 1 : 0)) % 4;
 }
 
-void move_pnt(pair<int, int> &cur_pnt, pair<int, int> &cur_arrow, const int row_max, const int col_max){
-    cur_pnt.first = (cur_pnt.first + cur_arrow.first + row_max) % row_max;
-    cur_pnt.second = (cur_pnt.second + cur_arrow.second + col_max) % col_max;
+void find_cycle(vector<vector<short>> &table, vector<string> &grid, vector<int> &answer, const int i, const int j, const int k, int cnt = 0){
+    tuple<int, int, int> cur_pnt = {i, j, k};
+    for(; !(table[get<0>(cur_pnt)][get<1>(cur_pnt)] & (1 << get<2>(cur_pnt))); cnt++){  table[get<0>(cur_pnt)][get<1>(cur_pnt)] |= (1 << get<2>(cur_pnt));  move_and_turn(grid, cur_pnt);   }
+    if(cur_pnt != tuple<int, int, int>{i, j, k} || !cnt)    return;
+    answer.push_back(cnt);
 }
 
 vector<int> solution(vector<string> grid) {
-    vector<int> answer(1, 0);
-    vector<pair<int, int>> arrows({{-1, 0}, {1, 0}, {0, -1}, {0, 1}});
-    set<pair<pair<int, int>, pair<int, int>>> cycles;
-    for_each(arrows.begin(), arrows.end(), [&](pair<int, int> arrow){
-        set<pair<pair<int, int>, pair<int, int>>> past;
-        pair<int, int> cur_pnt = {0, 0}, cur_arrow = arrow;
-        // cout << "case : " << arrow.first << ", " << arrow.second << endl;
-        while((past.insert({cur_pnt, cur_arrow})).second && cycles.find({cur_pnt, cur_arrow}) == cycles.end()){  
-            move_pnt(cur_pnt, cur_arrow, grid.size(), grid.begin()->size());
-            turn(cur_arrow, grid[cur_pnt.first][cur_pnt.second]);
-            // cout << "pnt(" << cur_pnt.first << ", " << cur_pnt.second << ")\t arrow : " << (cur_arrow.first == 1 ? "D" : cur_arrow.first == -1 ? "U" : cur_arrow.second == 1 ? "R" : "L") << endl;
-        }
-        // cout << "-------------------------------------------------" << endl;
-        if(cur_pnt.first || cur_pnt.second || cur_arrow != arrow)  return;
-        for(auto i = past.begin(); i != past.end(); i++)    if(!(cycles.insert(*i)).second)  return;
-        if(answer.back() == past.size())    answer.push_back(past.size());
-        else if(answer.back() < past.size()){   answer.clear(); answer.push_back(past.size());  }
-    });
+    vector<int> answer;
+    vector<vector<short>> table(grid.size(), vector<short>(grid.begin()->size(), 0));
+    for(int i = 0; i < grid.size(); i++)    for(int j = 0; j < grid.begin()->size(); j++)   for(int k = 0; k < 4; k++)  find_cycle(table, grid, answer, i, j, k);
+    sort(answer.begin(), answer.end());
     return answer;
 }
-
-/*
-    S case -> Continue
-
-    L case
-    1, 0(down) -> 0, 1(right)
-    -1, 0(up) -> 0, -1(left)
-    0, 1(right) -> -1, 0(up)
-    0, -1(left) -> 1, 0(down)
-
-    R case
-    1, 0(down) -> 0, -1(left)
-    -1, 0(up) -> 0, 1(right)
-    0, 1(right) -> 1, 0(down)
-    0, -1(left) -> -1, 0(up)
-*/
