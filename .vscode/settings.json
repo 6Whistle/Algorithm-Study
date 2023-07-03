@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "iosfwd": "cpp",
+        "regex": "cpp",
+        "vector": "cpp",
+        "string": "cpp",
+        "iostream": "cpp",
+        "tuple": "cpp",
+        "string_view": "cpp"
+    }
+}
