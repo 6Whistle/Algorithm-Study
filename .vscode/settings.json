@@ -7,6 +7,7 @@
         "iostream": "cpp",
         "tuple": "cpp",
         "string_view": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "set": "cpp"
     }
 }
