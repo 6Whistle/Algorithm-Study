@@ -14,7 +14,7 @@ public class Main {
         Set<Integer> set = new HashSet<>();
         queue.add(new ArrayList<>());
         for(int i = 0; i < 5; i++)  queue.peek().add(1);
-        //Generate Table
+
         for(int i = 0; i < table.length; i++){
             String tmp = br.readLine();
             for(int j = 0; j < tmp.length(); j++) {
@@ -24,7 +24,6 @@ public class Main {
             }
         }
 
-        //should change stack -> queue
         while(!queue.isEmpty()){
             List<Integer> curList = queue.poll();
             int curInt = (curList.get(0) << 12) | (curList.get(1) << 8) | (curList.get(2) << 4) | (curList.get(3));
